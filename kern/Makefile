@@ -3,7 +3,7 @@ CLANG ?= clang
 LLC ?= llc
 ARCH := $(subst x86_64,x86,$(shell arch))
 
-BIN :=tail_kern.o tail1.o 
+BIN :=tail_kern.o 
 CLANG_FLAGS = -I. -I$(KDIR)/arch/$(ARCH)/include \
     -I$(KDIR)/arch/$(ARCH)/include/generated \
     -I$(KDIR)/include \
@@ -26,10 +26,5 @@ tail_kern.o: tail_kern.c
 	$(CLANG) $(CLANG_FLAGS) -c $< -o - | \
 	$(LLC) -march=bpf -mcpu=$(CPU) -filetype=obj -o $@
 
-tail1.o: tail1.c
-	$(CLANG) $(CLANG_FLAGS) -c $< -o - | \
-	$(LLC) -march=bpf -mcpu=$(CPU) -filetype=obj -o $@
-
 clean:
 	rm -f tail_kern.o
-	rm -f tail1.o	

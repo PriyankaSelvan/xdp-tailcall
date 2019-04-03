@@ -7,6 +7,7 @@
 #include "bpf_helpers.h"
 
 char _license[] SEC("license") = "GPL";
+#define PROG(F) SEC("xdp/"__stringify(F)) int bpf_func_##F
 #define DEBUG 1
 
 #ifdef  DEBUG
@@ -38,7 +39,7 @@ struct bpf_map_def SEC("maps") jmp_table2 = {
 
 
 /* Main/root ebpf xdp program */
-SEC("xdp0")
+SEC("xdp/0")
 int  xdp_prog(struct xdp_md *ctx)
 {
 	void *data_end = (void *)(long)ctx->data_end;
@@ -51,13 +52,9 @@ int  xdp_prog(struct xdp_md *ctx)
 	if (eth + 1 > data_end)
 		return XDP_ABORTED;
 
-	int key = 78;
-        //while(key < 10)
-	//{
-        bpf_debug("XDP: trying %d", key);
+	u32 key = 78;
+        //bpf_debug("XDP: trying %d", key);
 	bpf_tail_call(ctx, &jmp_table1, key);
-	//key = key + 1;
-	//}
 
 	/* bpf_tail_call on empty jmp_table entry, cause fall-through.
 	 * (Normally a bpf_tail_call never returns)
@@ -72,7 +69,7 @@ int  xdp_prog(struct xdp_md *ctx)
  * "kprobe/N" and "kretprobe/N" (TODO: add support for "xdp/N").
  */
 /* Tail call index=1 */
-SEC("xdp1")
+SEC("xdp/1")
 int  xdp_tail_call_1(struct xdp_md *ctx)
 {
         //void *data_end = (void *)(long)ctx->data_end;
